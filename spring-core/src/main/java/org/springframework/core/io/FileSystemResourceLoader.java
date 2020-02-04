@@ -31,16 +31,22 @@ package org.springframework.core.io;
  * the same resource path resolution strategy.
  *
  * @author Juergen Hoeller
- * @since 1.1.3
  * @see DefaultResourceLoader
  * @see org.springframework.context.support.FileSystemXmlApplicationContext
+ * @since 1.1.3
  */
 public class FileSystemResourceLoader extends DefaultResourceLoader {
 
 	/**
+	 * {@link DefaultResourceLoader} 获取 Resource 默认不会会获取 FileSystemResource，
+	 * 重写 getResourceByPath 是为了创建 FileSystemResource。
+	 * <p>
+	 * 注意：即使以斜杠开头，依然会被当成相对路径。所以想使用绝对路径，只能使用 file: 前缀。
+	 * <p>
 	 * Resolve resource paths as file system paths.
 	 * <p>Note: Even if a given path starts with a slash, it will get
 	 * interpreted as relative to the current VM working directory.
+	 *
 	 * @param path the path to the resource
 	 * @return the corresponding Resource handle
 	 * @see FileSystemResource

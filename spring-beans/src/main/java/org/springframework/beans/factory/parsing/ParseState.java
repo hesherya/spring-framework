@@ -16,11 +16,13 @@
 
 package org.springframework.beans.factory.parsing;
 
-import java.util.LinkedList;
-
 import org.springframework.lang.Nullable;
 
+import java.util.LinkedList;
+
 /**
+ * 使用 LinkedList 实现的数据结构，用于记录解析过程的状态记录
+ * <p>
  * Simple {@link LinkedList}-based structure for tracking the logical position during
  * a parsing process. {@link Entry entries} are added to the LinkedList at
  * each point during the parse phase in a reader-specific manner.
@@ -95,6 +97,8 @@ public final class ParseState {
 
 
 	/**
+	 * 按树形表示打印
+	 * <p>
 	 * Returns a tree-style representation of the current {@code ParseState}.
 	 */
 	@Override

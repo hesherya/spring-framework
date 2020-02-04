@@ -74,6 +74,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 								registeredName + "' with new target name '" + name + "'");
 					}
 				}
+				// 检查别名循环
 				checkForAliasCircle(name, alias);
 				this.aliasMap.put(alias, name);
 				if (logger.isTraceEnabled()) {
@@ -98,7 +99,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * @since 4.2.1
 	 */
 	public boolean hasAlias(String name, String alias) {
+		// 迭代所有别名散列表
 		for (Map.Entry<String, String> entry : this.aliasMap.entrySet()) {
+			// 如果此 bean 的名称和别名与以后 map 中的别名和名称分别相同，说明有循环
 			String registeredName = entry.getValue();
 			if (registeredName.equals(name)) {
 				String registeredAlias = entry.getKey();

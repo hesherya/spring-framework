@@ -95,6 +95,7 @@ public abstract class CollectionUtils {
 	}
 
 	/**
+	 * 遍历属性文件所有键值并存入 Map，如果未取到，取默认配置文件中的值
 	 * Merge the given Properties instance into the given Map,
 	 * copying all properties (key-value pairs) over.
 	 * <p>Uses {@code Properties.propertyNames()} to even catch
@@ -107,9 +108,11 @@ public abstract class CollectionUtils {
 		if (props != null) {
 			for (Enumeration<?> en = props.propertyNames(); en.hasMoreElements();) {
 				String key = (String) en.nextElement();
+				// get 方法未取到时返回为 null
 				Object value = props.get(key);
 				if (value == null) {
 					// Allow for defaults fallback or potentially overridden accessor...
+					// 取默认配置文件中的值
 					value = props.getProperty(key);
 				}
 				map.put((K) key, (V) value);

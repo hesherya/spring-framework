@@ -166,7 +166,9 @@ public class AntPathMatcher implements PathMatcher {
 		this.stringMatcherCache.clear();
 	}
 
-
+	/**
+	 * 有星号或者问号就可以认为符合模式
+	 */
 	@Override
 	public boolean isPattern(String path) {
 		return (path.indexOf('*') != -1 || path.indexOf('?') != -1);

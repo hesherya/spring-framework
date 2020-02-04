@@ -88,6 +88,7 @@ public abstract class BeanDefinitionReaderUtils {
 	}
 
 	/**
+	 * 生成 BeanName
 	 * Generate a bean name for the given bean definition, unique within the
 	 * given bean factory.
 	 * @param definition the bean definition to generate a bean name for
@@ -121,10 +122,12 @@ public abstract class BeanDefinitionReaderUtils {
 		String id = generatedBeanName;
 		if (isInnerBean) {
 			// Inner bean: generate identity hashcode suffix.
+			// 内部 bin 加上 hashcode 后缀
 			id = generatedBeanName + GENERATED_BEAN_NAME_SEPARATOR + ObjectUtils.getIdentityHexString(definition);
 		}
 		else {
 			// Top-level bean: use plain class name with unique suffix if necessary.
+			// 顶级 bean 加上注册次数后缀
 			return uniqueBeanName(generatedBeanName, registry);
 		}
 		return id;

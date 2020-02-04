@@ -101,6 +101,8 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 通过 getURL() 转为 URI，工具类做了字符串的替换，空格替换为 %20
+	 *
 	 * This implementation builds a URI based on the URL returned
 	 * by {@link #getURL()}.
 	 */
@@ -136,6 +138,8 @@ public abstract class AbstractResource implements Resource {
 	}
 
 	/**
+	 * 按字节读取一遍并统计长度
+	 *
 	 * This implementation reads the entire InputStream to calculate the
 	 * content length. Subclasses will almost always be able to provide
 	 * a more optimal version of this, e.g. checking a File length.

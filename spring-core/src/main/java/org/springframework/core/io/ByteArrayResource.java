@@ -16,13 +16,13 @@
 
 package org.springframework.core.io;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
 
 /**
  * {@link Resource} implementation for a given byte array.
@@ -35,10 +35,10 @@ import org.springframework.util.Assert;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @since 1.2.3
  * @see java.io.ByteArrayInputStream
  * @see InputStreamResource
  * @see org.springframework.mail.javamail.MimeMessageHelper#addAttachment(String, InputStreamSource)
+ * @since 1.2.3
  */
 public class ByteArrayResource extends AbstractResource {
 
@@ -49,6 +49,7 @@ public class ByteArrayResource extends AbstractResource {
 
 	/**
 	 * Create a new {@code ByteArrayResource}.
+	 *
 	 * @param byteArray the byte array to wrap
 	 */
 	public ByteArrayResource(byte[] byteArray) {
@@ -57,7 +58,8 @@ public class ByteArrayResource extends AbstractResource {
 
 	/**
 	 * Create a new {@code ByteArrayResource} with a description.
-	 * @param byteArray the byte array to wrap
+	 *
+	 * @param byteArray   the byte array to wrap
 	 * @param description where the byte array comes from
 	 */
 	public ByteArrayResource(byte[] byteArray, @Nullable String description) {
@@ -83,6 +85,8 @@ public class ByteArrayResource extends AbstractResource {
 	}
 
 	/**
+	 * 返回字节数组长度
+	 * <p>
 	 * This implementation returns the length of the underlying byte array.
 	 */
 	@Override
@@ -91,8 +95,11 @@ public class ByteArrayResource extends AbstractResource {
 	}
 
 	/**
+	 * 创建一个新的字节数组输入流
+	 * <p>
 	 * This implementation returns a ByteArrayInputStream for the
 	 * underlying byte array.
+	 *
 	 * @see java.io.ByteArrayInputStream
 	 */
 	@Override
@@ -112,6 +119,7 @@ public class ByteArrayResource extends AbstractResource {
 
 	/**
 	 * This implementation compares the underlying byte array.
+	 *
 	 * @see java.util.Arrays#equals(byte[], byte[])
 	 */
 	@Override

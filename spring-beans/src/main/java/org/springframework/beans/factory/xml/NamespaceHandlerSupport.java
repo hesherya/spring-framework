@@ -16,16 +16,15 @@
 
 package org.springframework.beans.factory.xml;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.BeanDefinitionHolder;
+import org.springframework.lang.Nullable;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.beans.factory.config.BeanDefinitionHolder;
-import org.springframework.lang.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Support class for implementing custom {@link NamespaceHandler NamespaceHandlers}.
@@ -38,9 +37,9 @@ import org.springframework.lang.Nullable;
  *
  * @author Rob Harrop
  * @author Juergen Hoeller
- * @since 2.0
  * @see #registerBeanDefinitionParser(String, BeanDefinitionParser)
  * @see #registerBeanDefinitionDecorator(String, BeanDefinitionDecorator)
+ * @since 2.0
  */
 public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
@@ -64,6 +63,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 
 	/**
+	 * 使用解析器解析元素
+	 * <p>
 	 * Parses the supplied {@link Element} by delegating to the {@link BeanDefinitionParser} that is
 	 * registered for that {@link Element}.
 	 */
@@ -75,12 +76,16 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	}
 
 	/**
+	 * 定位元素的解析器
+	 * <p>
 	 * Locates the {@link BeanDefinitionParser} from the register implementations using
 	 * the local name of the supplied {@link Element}.
 	 */
 	@Nullable
 	private BeanDefinitionParser findParserForElement(Element element, ParserContext parserContext) {
+		// 获取结点名称
 		String localName = parserContext.getDelegate().getLocalName(element);
+		// 获取已注册的解析器
 		BeanDefinitionParser parser = this.parsers.get(localName);
 		if (parser == null) {
 			parserContext.getReaderContext().fatal(
@@ -103,6 +108,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	}
 
 	/**
+	 * 查找装饰器，元素名或属性名
+	 * <p>
 	 * Locates the {@link BeanDefinitionParser} from the register implementations using
 	 * the local name of the supplied {@link Node}. Supports both {@link Element Elements}
 	 * and {@link Attr Attrs}.
@@ -113,11 +120,9 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 		String localName = parserContext.getDelegate().getLocalName(node);
 		if (node instanceof Element) {
 			decorator = this.decorators.get(localName);
-		}
-		else if (node instanceof Attr) {
+		} else if (node instanceof Attr) {
 			decorator = this.attributeDecorators.get(localName);
-		}
-		else {
+		} else {
 			parserContext.getReaderContext().fatal(
 					"Cannot decorate based on Nodes of type [" + node.getClass().getName() + "]", node);
 		}
@@ -130,6 +135,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 
 
 	/**
+	 * 子类调用此方法注册解析器
+	 * <p>
 	 * Subclasses can call this to register the supplied {@link BeanDefinitionParser} to
 	 * handle the specified element. The element name is the local (non-namespace qualified)
 	 * name.
