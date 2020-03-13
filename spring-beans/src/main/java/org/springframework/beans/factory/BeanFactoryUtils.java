@@ -72,6 +72,8 @@ public abstract class BeanFactoryUtils {
 	}
 
 	/**
+	 * 对于工厂 Bean，去除其前缀 &，返回实际名称。
+	 * <p/>
 	 * Return the actual bean name, stripping out the factory dereference
 	 * prefix (if any, also stripping repeated factory prefixes if found).
 	 * @param name the name of the bean
@@ -83,6 +85,10 @@ public abstract class BeanFactoryUtils {
 		if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
 			return name;
 		}
+
+		/* transformedBeanNameCache 为 CHM 实现的本地缓存，computeIfAbsent 会在
+		key 不存在时进行函数计算并将结果 put 到 CHM 中，这里用于循环截取工厂 bean
+		的多个 & 前缀。*/
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
 			do {
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());

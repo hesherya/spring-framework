@@ -202,6 +202,8 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	}
 
 	/**
+	 * 通过 CHM 实现的 aliasMap 循环获取原始名
+	 *
 	 * Determine the raw name, resolving aliases to canonical names.
 	 * @param name the user-specified name
 	 * @return the transformed name
@@ -216,6 +218,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 				canonicalName = resolvedName;
 			}
 		}
+		// 循环获取原始名
 		while (resolvedName != null);
 		return canonicalName;
 	}
