@@ -174,15 +174,23 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+		// CHM 实现的 singletonObjects 缓存了所有单例对象
 		Object singletonObject = this.singletonObjects.get(beanName);
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			// 如果没有缓存，则同步处理后续步骤
 			synchronized (this.singletonObjects) {
+				// 从 earlySingletonObjects 中获取单例对象，注意 earlySingletonObjects 是普通 HashMap
 				singletonObject = this.earlySingletonObjects.get(beanName);
+				// allowEarlyReference 的处理
 				if (singletonObject == null && allowEarlyReference) {
+					// 从 HashMap 实现的 singletonFactories 中获取 singletonFactory
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
+						// 从单例工厂获取单例对象，但并未缓存到 singletonObjects
 						singletonObject = singletonFactory.getObject();
+						// 缓存到 earlySingletonObjects 中
 						this.earlySingletonObjects.put(beanName, singletonObject);
+						// 移除单例工厂
 						this.singletonFactories.remove(beanName);
 					}
 				}
@@ -320,6 +328,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	}
 
 	/**
+	 * 正在创建中的单例集合
+	 * <p/>
 	 * Return whether the specified singleton bean is currently in creation
 	 * (within the entire factory).
 	 * @param beanName the name of the bean

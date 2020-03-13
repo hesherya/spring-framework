@@ -94,6 +94,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 	 * @see org.springframework.beans.factory.FactoryBean#getObject()
 	 */
 	protected Object getObjectFromFactoryBean(FactoryBean<?> factory, String beanName, boolean shouldPostProcess) {
+		// 单例处理，有同步机制。
 		if (factory.isSingleton() && containsSingleton(beanName)) {
 			synchronized (getSingletonMutex()) {
 				Object object = this.factoryBeanObjectCache.get(beanName);
@@ -106,13 +107,16 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 						object = alreadyThere;
 					}
 					else {
+						// 应该后处理。
 						if (shouldPostProcess) {
 							if (isSingletonCurrentlyInCreation(beanName)) {
 								// Temporarily return non-post-processed object, not storing it yet..
 								return object;
 							}
+							// 预处理
 							beforeSingletonCreation(beanName);
 							try {
+								// 默认实现直接返回对象，子类可自行实现后处理逻辑。
 								object = postProcessObjectFromFactoryBean(object, beanName);
 							}
 							catch (Throwable ex) {
@@ -120,9 +124,11 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 										"Post-processing of FactoryBean's singleton object failed", ex);
 							}
 							finally {
+								// 后续处理。
 								afterSingletonCreation(beanName);
 							}
 						}
+						// 缓存。
 						if (containsSingleton(beanName)) {
 							this.factoryBeanObjectCache.put(beanName, object);
 						}
@@ -131,6 +137,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				return object;
 			}
 		}
+		// 非单例。
 		else {
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
 			if (shouldPostProcess) {
@@ -158,6 +165,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 
 		Object object;
 		try {
+			// 通过 SecurityManager 控制访问权限，才能获取对象。
 			if (System.getSecurityManager() != null) {
 				AccessControlContext acc = getAccessControlContext();
 				try {
@@ -167,6 +175,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 					throw pae.getException();
 				}
 			}
+			// 直接获取对象
 			else {
 				object = factory.getObject();
 			}
@@ -185,6 +194,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 				throw new BeanCurrentlyInCreationException(
 						beanName, "FactoryBean which is currently in creation returned null from getObject");
 			}
+			// 没有获取到对象 bean 时返回一个 NullBean 而非 null。
 			object = new NullBean();
 		}
 		return object;
