@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -565,7 +566,7 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	 * Class representing generic injection information about an annotated field
 	 * or setter method, supporting @Resource and related annotations.
 	 */
-	protected abstract class LookupElement extends InjectionMetadata.InjectedElement {
+	protected abstract static class LookupElement extends InjectionMetadata.InjectedElement {
 
 		protected String name = "";
 
