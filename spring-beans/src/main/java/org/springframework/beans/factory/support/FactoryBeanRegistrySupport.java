@@ -107,13 +107,13 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 						object = alreadyThere;
 					}
 					else {
-						// 应该后处理。
+						// 如果不是用户创建的，执行后处理。
 						if (shouldPostProcess) {
 							if (isSingletonCurrentlyInCreation(beanName)) {
 								// Temporarily return non-post-processed object, not storing it yet..
 								return object;
 							}
-							// 预处理
+							// 预处理，标记为正在创建单例对象。
 							beforeSingletonCreation(beanName);
 							try {
 								// 默认实现直接返回对象，子类可自行实现后处理逻辑。
@@ -124,7 +124,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 										"Post-processing of FactoryBean's singleton object failed", ex);
 							}
 							finally {
-								// 后续处理。
+								// 后处理，从正在创建单例对象集合中移除。
 								afterSingletonCreation(beanName);
 							}
 						}
@@ -140,6 +140,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 		// 非单例。
 		else {
 			Object object = doGetObjectFromFactoryBean(factory, beanName);
+			// 非用户创建的，进行后处理。
 			if (shouldPostProcess) {
 				try {
 					object = postProcessObjectFromFactoryBean(object, beanName);
@@ -165,7 +166,7 @@ public abstract class FactoryBeanRegistrySupport extends DefaultSingletonBeanReg
 
 		Object object;
 		try {
-			// 通过 SecurityManager 控制访问权限，才能获取对象。
+			// 通过 SecurityManager 控制访问权限，有权限才能获取对象。
 			if (System.getSecurityManager() != null) {
 				AccessControlContext acc = getAccessControlContext();
 				try {

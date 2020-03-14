@@ -220,6 +220,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				// 标记为创建中
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -227,6 +228,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+					// 实际调用为 createBean 方法，通过 lambda 参数传入。
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -250,8 +252,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+					// 清楚创建中标志
 					afterSingletonCreation(beanName);
 				}
+				// 增加到缓存容器中
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}
@@ -345,7 +349,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @see #isSingletonCurrentlyInCreation
 	 */
 	protected void beforeSingletonCreation(String beanName) {
-		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.add(beanName)) {
+		if (!this.inCreationCheckExclusions.contains(beanName)
+				// 标记为正在创建，如果已经在创建会返回 false。
+				&& !this.singletonsCurrentlyInCreation.add(beanName)) {
 			throw new BeanCurrentlyInCreationException(beanName);
 		}
 	}
@@ -357,7 +363,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @see #isSingletonCurrentlyInCreation
 	 */
 	protected void afterSingletonCreation(String beanName) {
-		if (!this.inCreationCheckExclusions.contains(beanName) && !this.singletonsCurrentlyInCreation.remove(beanName)) {
+		if (!this.inCreationCheckExclusions.contains(beanName)
+				// 标记为没有在创建。
+				&& !this.singletonsCurrentlyInCreation.remove(beanName)) {
 			throw new IllegalStateException("Singleton '" + beanName + "' isn't currently in creation");
 		}
 	}
@@ -407,6 +415,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		String canonicalName = canonicalName(beanName);
 
+		// dependentBeanName 放入 dependentBeanMap。
 		synchronized (this.dependentBeanMap) {
 			Set<String> dependentBeans =
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
@@ -415,6 +424,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			}
 		}
 
+		// canonicalName 放入 dependenciesForBeanMap。
 		synchronized (this.dependenciesForBeanMap) {
 			Set<String> dependenciesForBean =
 					this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));
@@ -441,12 +451,15 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 		String canonicalName = canonicalName(beanName);
 		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);
+		// 没有依赖。
 		if (dependentBeans == null) {
 			return false;
 		}
+		// 确认是其依赖。
 		if (dependentBeans.contains(dependentBeanName)) {
 			return true;
 		}
+		// 遍历其依赖并递归调用确认是否是其上层依赖。
 		for (String transitiveDependency : dependentBeans) {
 			if (alreadySeen == null) {
 				alreadySeen = new HashSet<>();
