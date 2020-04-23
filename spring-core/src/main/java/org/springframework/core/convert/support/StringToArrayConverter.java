@@ -66,10 +66,13 @@ final class StringToArrayConverter implements ConditionalGenericConverter {
 		String[] fields = StringUtils.commaDelimitedListToStringArray(string);
 		TypeDescriptor targetElementType = targetType.getElementTypeDescriptor();
 		Assert.state(targetElementType != null, "No target element type");
+		// 反射创建数组。
 		Object target = Array.newInstance(targetElementType.getType(), fields.length);
 		for (int i = 0; i < fields.length; i++) {
 			String sourceElement = fields[i];
+			// 类型转换。
 			Object targetElement = this.conversionService.convert(sourceElement.trim(), sourceType, targetElementType);
+			// 放入数组。
 			Array.set(target, i, targetElement);
 		}
 		return target;
