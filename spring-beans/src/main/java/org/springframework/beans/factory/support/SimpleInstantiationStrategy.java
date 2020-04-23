@@ -70,6 +70,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 						throw new BeanInstantiationException(clazz, "Specified class is an interface");
 					}
 					try {
+						// 通过 Class 反射构造方法，用于初始化。
 						if (System.getSecurityManager() != null) {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
@@ -148,10 +149,14 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				ReflectionUtils.makeAccessible(factoryMethod);
 			}
 
+			// 从线程变量中取的工厂方法。
 			Method priorInvokedFactoryMethod = currentlyInvokedFactoryMethod.get();
 			try {
+				// 将要调用的工厂方法设置到当前线程变量中。
 				currentlyInvokedFactoryMethod.set(factoryMethod);
+				// 反射调用。
 				Object result = factoryMethod.invoke(factoryBean, args);
+				// 空模式。
 				if (result == null) {
 					result = new NullBean();
 				}
@@ -159,9 +164,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 			}
 			finally {
 				if (priorInvokedFactoryMethod != null) {
+					// 恢复原线程变量内容。
 					currentlyInvokedFactoryMethod.set(priorInvokedFactoryMethod);
 				}
 				else {
+					// 清理线程变量。
 					currentlyInvokedFactoryMethod.remove();
 				}
 			}

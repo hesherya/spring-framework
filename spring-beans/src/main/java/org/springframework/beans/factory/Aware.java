@@ -27,6 +27,11 @@ package org.springframework.beans.factory;
  * {@link org.springframework.beans.factory.config.BeanPostProcessor}.
  * Refer to {@link org.springframework.context.support.ApplicationContextAwareProcessor}
  * for an example of processing specific {@code *Aware} interface callbacks.
+ * <p>
+ * <br>
+ * Aware 接口是一个空接口，实际的方法签名由各个子接口来确定，且该接口通常只会有一个接收单参数的 set 方法，
+ * 该 set 方法的命名方式为 set + 去掉接口名中的 Aware 后缀，即 XxxAware 接口，则方法定义为 setXxx()，
+ * 例如 BeanNameAware（setBeanName），ApplicationContextAware（setApplicationContext）。
  *
  * @author Chris Beams
  * @author Juergen Hoeller

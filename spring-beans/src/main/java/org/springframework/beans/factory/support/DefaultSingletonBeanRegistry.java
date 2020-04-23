@@ -174,23 +174,24 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
-		// CHM 实现的 singletonObjects 缓存了所有单例对象
+		// （1）从 CHM 实现的 singletonObjects 获取，这个 Map 缓存了所有单例对象。
 		Object singletonObject = this.singletonObjects.get(beanName);
+		// 没取到并且正在创建中，允许同步的去 earlySingletonObjects 取。
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
-			// 如果没有缓存，则同步处理后续步骤
+			// 如果没有缓存，则同步处理后续步骤。
 			synchronized (this.singletonObjects) {
-				// 从 earlySingletonObjects 中获取单例对象，注意 earlySingletonObjects 是普通 HashMap
+				// （2）从 earlySingletonObjects 中获取单例对象，注意 earlySingletonObjects 是普通 HashMap。
 				singletonObject = this.earlySingletonObjects.get(beanName);
-				// allowEarlyReference 的处理
+				// 没取到并且允许提前引用，就从单例工厂里创建。
 				if (singletonObject == null && allowEarlyReference) {
-					// 从 HashMap 实现的 singletonFactories 中获取 singletonFactory
+					// 从 HashMap 实现的 singletonFactories 中获取 singletonFactory。
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
-						// 从单例工厂获取单例对象，但并未缓存到 singletonObjects
+						// （3）从单例工厂获取单例对象，但并未缓存到 singletonObjects。
 						singletonObject = singletonFactory.getObject();
-						// 缓存到 earlySingletonObjects 中
+						// 缓存到 earlySingletonObjects 中，升级为二级缓存。
 						this.earlySingletonObjects.put(beanName, singletonObject);
-						// 移除单例工厂
+						// 移除单例工厂，清除三级缓存。
 						this.singletonFactories.remove(beanName);
 					}
 				}
@@ -252,7 +253,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
-					// 清楚创建中标志
+					// 清除创建中标志
 					afterSingletonCreation(beanName);
 				}
 				// 增加到缓存容器中
@@ -417,6 +418,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 
 		// dependentBeanName 放入 dependentBeanMap。
 		synchronized (this.dependentBeanMap) {
+			// 这个写法值得学习，this.dependentBeanMap 中
+			// 不含 canonicalName 这个 key,
+			// 就执行后面 function 并作为返回的 value，放入 Map，
+			// 而 value 是 Set 类型，可以用于判断是否缓存过 bean，
+			// 对于已经缓存过的，直接返回，避免了后续的同步开销。
 			Set<String> dependentBeans =
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
 			if (!dependentBeans.add(dependentBeanName)) {
